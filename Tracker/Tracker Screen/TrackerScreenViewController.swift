@@ -15,6 +15,11 @@ final class TrackerScreenViewController: UIViewController {
     private var searchBar: UISearchBar?
     private var stubImageView: UIImageView?
     private var stubLabel: UILabel?
+    
+    // MARK: - Properties
+    
+    var categories: [TrackerCategory] = []
+    var completedTrackers: [Tracker] = []
 
     // MARK: - Lifecycle
     
