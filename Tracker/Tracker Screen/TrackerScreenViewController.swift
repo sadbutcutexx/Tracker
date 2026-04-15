@@ -17,6 +17,10 @@ final class TrackerScreenViewController: UIViewController {
     private var stubLabel: UILabel?
     private var trackerCollectionView: UICollectionView?
     
+    //MARK: - ViewControllers
+    
+    private var addTrackerViewController: UIViewController = AddTrackerConfigurationViewController()
+    
     // MARK: - Properties
     
     var categories: [TrackerCategory] = []
@@ -205,7 +209,7 @@ final class TrackerScreenViewController: UIViewController {
     // MARK: - Private Actions
     
     @objc private func addTrackersButtonTapped() {
-        // TODO: - Code
+        self.present(addTrackerViewController, animated: true)
     }
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
