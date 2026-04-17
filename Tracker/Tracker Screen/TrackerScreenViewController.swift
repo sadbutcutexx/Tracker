@@ -5,7 +5,11 @@
 
 import UIKit
 
-final class TrackerScreenViewController: UIViewController {
+protocol TrackerScreenProtocol: AnyObject {
+    func newTrackerAdded(_ tracker: Tracker) 
+}
+
+final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol {
     
     // MARK: - Outlets
     
@@ -34,6 +38,7 @@ final class TrackerScreenViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: false)
         
         setupViewsAndConstraints()
+        updateEmptyState()
     }
     
     // MARK: - Setup Constraints And Views
@@ -45,7 +50,7 @@ final class TrackerScreenViewController: UIViewController {
         searchBar: UISearchBar,
         stubImageView: UIImageView,
         stubLabel: UILabel,
-        collectionView: UICollectionView
+        trackerCollectionView: UICollectionView
     ) {
         NSLayoutConstraint.activate([
             
@@ -81,7 +86,10 @@ final class TrackerScreenViewController: UIViewController {
             
             // trackerCollectionView
             
-            
+            trackerCollectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 32),
+            trackerCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            trackerCollectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            trackerCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
     
@@ -116,7 +124,7 @@ final class TrackerScreenViewController: UIViewController {
             searchBar: searchBar,
             stubImageView: stubImageView,
             stubLabel: stubLabel,
-            collectionView: trackerCollectionView
+            trackerCollectionView: trackerCollectionView
         )
         
         view.backgroundColor = UIColor(named: "White [iOS]")
@@ -196,12 +204,41 @@ final class TrackerScreenViewController: UIViewController {
             )
             
             collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: "TrackerCollectionCell")
+            
+            collectionView.register(CategoryHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryHeaderView.reuseIdentifier)
+            collectionView.backgroundColor = .red
+            
+            collectionView.dataSource = self
+            collectionView.delegate = self
+            
             return collectionView
         }()
-        
-        collectionView.register(CategoryHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryHeaderView.reuseIdentifier)
-        
+
         return collectionView
+    }
+    
+    // MARK: - Private methods
+    
+    func newTrackerAdded(_ tracker: Tracker) {
+        let category = TrackerCategory(
+            title: "веселье",
+            trackers: [tracker]
+        )
+        
+        categories.append(category)
+        
+        DispatchQueue.main.async {
+            self.trackerCollectionView?.reloadData()
+            self.updateEmptyState()
+        }
+    }
+    
+    private func updateEmptyState() {
+        let hasTrackers = !categories.isEmpty
+        
+        stubImageView?.isHidden = hasTrackers
+        stubLabel?.isHidden = hasTrackers
+        trackerCollectionView?.isHidden = !hasTrackers
     }
     
     // MARK: - Private Actions
@@ -222,5 +259,26 @@ final class TrackerScreenViewController: UIViewController {
 // MARK: - UICollectionViewDelegateFlowLayout
 
 extension TrackerScreenViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        CGSize(width: collectionView.bounds.width, height: 50)
+    }
+}
+
+extension TrackerScreenViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        categories.count
+    }
     
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        categories[section].trackers.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrackerCollectionCell", for: indexPath) as? TrackerCollectionViewCell else { return UICollectionViewCell() }
+        
+        let tracker = categories[indexPath.section].trackers[indexPath.item]
+        cell.configure(emoji: tracker.emoji, title: tracker.title)
+        
+        return cell
+    }
 }

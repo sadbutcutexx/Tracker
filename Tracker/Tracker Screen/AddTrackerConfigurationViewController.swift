@@ -15,6 +15,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private lazy var categoryRow: UIView = makeSimpleRow(title: "Категория")
     private var selectedDays: [SheduleDaysPicker.WeekDay] = []
+    private var trackerScreen: TrackerScreenProtocol?
 
     private let limitLabel: UILabel = {
         let label = UILabel()
@@ -138,6 +139,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        trackerScreen = TrackerScreenViewController()
+        
         view.backgroundColor = .white
 
         trackerNameField.delegate = self
@@ -317,7 +320,9 @@ final class AddTrackerConfigurationViewController: UIViewController {
         dismiss(animated: true)
     }
 
-    @objc private func createTrackerButtonDidTapped(_ sender: UIButton) {
+    @objc private func createTrackerButtonDidTapped() {
+        view.endEditing(true)
+
         let tracker = Tracker(
             id: UUID(),
             title: trackerNameField.text ?? "",
@@ -325,10 +330,10 @@ final class AddTrackerConfigurationViewController: UIViewController {
             emoji: "🙂",
             shedule: selectedDays.map { $0.rawValue }
         )
-    
-        print("Трекер получен: \(tracker)")
-    }
 
+        trackerScreen?.newTrackerAdded(tracker)
+        dismiss(animated: true)
+    }
     @objc private func textDidChanged() {
         let count = trackerNameField.text?.count ?? 0
         let newState = count >= maxNameLength
@@ -353,6 +358,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
             self?.selectedDays = days
             self?.updateScheduleRow()
         }
+        
+        view.endEditing(true)
 
         present(picker, animated: true)
     }
