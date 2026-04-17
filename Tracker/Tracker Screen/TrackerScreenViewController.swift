@@ -250,12 +250,12 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     
     private func updateEmptyState() {
         
-        let hasTrackers = categories.contains { !$0.trackers.isEmpty }
-        
+        let hasTrackers = !displayedCategories.isEmpty
+
         stubImageView?.isHidden = hasTrackers
         stubLabel?.isHidden = hasTrackers
         trackerCollectionView?.isHidden = !hasTrackers
-        
+
         if hasTrackers {
             view.bringSubviewToFront(trackerCollectionView!)
         } else {
@@ -263,7 +263,6 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
             view.bringSubviewToFront(stubLabel!)
         }
     }
-    
     // MARK: - onDateToggle
     
     private func normalizedDate(_ date: Date) -> Date {
@@ -328,6 +327,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         selectedDate = sender.date
         trackerCollectionView?.reloadData()
+        updateEmptyState()
     }
 }
 
