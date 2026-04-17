@@ -20,6 +20,12 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     private var stubImageView: UIImageView?
     private var stubLabel: UILabel?
     private var trackerCollectionView: UICollectionView?
+    
+    //MARK: - Properties
+
+    private var searchText: String = ""
+    private var selectedDate: Date = Date()
+    private var records: [UUID: TrackerRecord] = [:]
 
     // MARK: - Categories
 
@@ -28,6 +34,20 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         TrackerCategory(title: "Здоровье", trackers: []),
         TrackerCategory(title: "Работа", trackers: [])
     ]
+
+    // MARK: - Fillter
+
+    private var displayedCategories: [TrackerCategory] {
+        let filtered = categories.map { category in
+            let trackers = category.trackers.filter {
+                searchText.isEmpty ||
+                $0.title.lowercased().contains(searchText.lowercased())
+            }
+            return TrackerCategory(title: category.title, trackers: trackers)
+        }
+
+        return filtered.filter { !$0.trackers.isEmpty }
+    }
 
     // MARK: - Lifecycle
 
@@ -38,12 +58,6 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
 
         setupViewsAndConstraints()
         updateEmptyState()
-    }
-
-    // MARK: - Helpers
-
-    private var nonEmptyCategories: [TrackerCategory] {
-        categories.filter { !$0.trackers.isEmpty }
     }
 
     // MARK: - Setup
@@ -128,71 +142,57 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     }
 
     // MARK: - Create Views
-        
+
     private func createAddTrackerButton() -> UIButton {
-        let addTrackerButton = UIButton.systemButton(
+        let button = UIButton.systemButton(
             with: UIImage(named: "AddTrackersButton") ?? UIImage(),
             target: self,
-            action: #selector(Self.addTrackersButtonTapped)
+            action: #selector(addTrackersButtonTapped)
         )
-            
-        addTrackerButton.tintColor = UIColor(named: "Black [iOS]")
-            
-        return addTrackerButton
+        button.tintColor = UIColor(named: "Black [iOS]")
+        return button
     }
-        
+
     private func createDatePicker() -> UIDatePicker {
-        let datePicker = UIDatePicker()
-            
-        datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .compact
-        datePicker.locale = Locale(identifier: "ru_RU")
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-            
-        return datePicker
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .compact
+        picker.locale = Locale(identifier: "ru_RU")
+        picker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        return picker
     }
-        
+
     private func createTrackerLabel() -> UILabel {
-        let trackerLabel = UILabel()
-            
-        trackerLabel.text = "Трекеры"
-        trackerLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        trackerLabel.textColor = UIColor(named: "Black [iOS]")
-            
-        return trackerLabel
+        let label = UILabel()
+        label.text = "Трекеры"
+        label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
+        label.textColor = UIColor(named: "Black [iOS]")
+        return label
     }
-        
+
     private func createSearchBar() -> UISearchBar {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Поиск"
+        searchBar.delegate = self
         searchBar.backgroundImage = UIImage()
-        searchBar.layer.cornerRadius = 16
-        searchBar.layer.borderWidth = 1
-        searchBar.layer.borderColor = UIColor.clear.cgColor
-            
         searchBar.autocorrectionType = .no
         searchBar.autocapitalizationType = .none
-            
         return searchBar
     }
-        
+
     private func createStubImageView() -> UIImageView {
-        let stubImageView = UIImageView(image: UIImage(named: "TrackerMainscreenStubImage"))
-            
-        return stubImageView
+        UIImageView(image: UIImage(named: "TrackerMainscreenStubImage"))
     }
-        
+
     private func createStubLabel() -> UILabel {
-        let stubLabel = UILabel()
-            
-        stubLabel.text = "Что будем отслеживать?"
-        stubLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        stubLabel.textColor = UIColor(named: "Black [iOS]")
-            
-        return stubLabel
+        let label = UILabel()
+        label.text = "Что будем отслеживать?"
+        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        label.textColor = UIColor(named: "Black [iOS]")
+        return label
     }
-        
+
     private func createCollectionView() -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -201,19 +201,23 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-            
+
         collectionView.register(
             TrackerCollectionViewCell.self,
             forCellWithReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier
         )
-            
-        collectionView.register(CategoryHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CategoryHeaderView.reuseIdentifier)
-            
-        collectionView.backgroundColor = .clear
+
+        collectionView.register(
+            CategoryHeaderView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: CategoryHeaderView.reuseIdentifier
+        )
+
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.backgroundColor = .clear
         collectionView.alwaysBounceVertical = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
+
         return collectionView
     }
 
@@ -224,32 +228,14 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         let randomIndex = Int.random(in: 0..<categories.count)
 
         let wasEmpty = categories[randomIndex].trackers.isEmpty
-
         categories[randomIndex].trackers.append(tracker)
 
-        if wasEmpty {
-            trackerCollectionView?.reloadData()
-        } else {
-
-            guard let sectionIndex = nonEmptyCategories.firstIndex(where: {
-                $0.title == categories[randomIndex].title
-            }) else {
-                trackerCollectionView?.reloadData()
-                return
-            }
-
-            let itemIndex = categories[randomIndex].trackers.count - 1
-            let indexPath = IndexPath(item: itemIndex, section: sectionIndex)
-
-            trackerCollectionView?.performBatchUpdates {
-                trackerCollectionView?.insertItems(at: [indexPath])
-            }
-        }
+        trackerCollectionView?.reloadData()
 
         updateEmptyState()
     }
 
-    // MARK: - Empty state
+    // MARK: - Empty State
 
     private func updateEmptyState() {
 
@@ -274,13 +260,26 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         vc.delegate = self
         present(vc, animated: true)
     }
-    
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formattedDate = dateFormatter.string(from: selectedDate)
-        print("Selected date: \(formattedDate)")
+
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {}
+}
+
+// MARK: - Search
+
+extension TrackerScreenViewController: UISearchBarDelegate {
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.searchText = searchText
+        trackerCollectionView?.reloadData()
+        updateEmptyState()
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchText = ""
+        searchBar.resignFirstResponder()
+        trackerCollectionView?.reloadData()
+        updateEmptyState()
     }
 }
 
@@ -289,12 +288,12 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
 extension TrackerScreenViewController: UICollectionViewDataSource {
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        nonEmptyCategories.count
+        displayedCategories.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        nonEmptyCategories[section].trackers.count
+        displayedCategories[section].trackers.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -307,7 +306,7 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
 
-        let category = nonEmptyCategories[indexPath.section]
+        let category = displayedCategories[indexPath.section]
         let tracker = category.trackers[indexPath.item]
 
         cell.configure(
@@ -323,10 +322,6 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
                         viewForSupplementaryElementOfKind kind: String,
                         at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard kind == UICollectionView.elementKindSectionHeader else {
-            return UICollectionReusableView()
-        }
-
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
             withReuseIdentifier: CategoryHeaderView.reuseIdentifier,
@@ -335,7 +330,7 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
             return UICollectionReusableView()
         }
 
-        let category = nonEmptyCategories[indexPath.section]
+        let category = displayedCategories[indexPath.section]
         header.configure(title: category.title)
 
         return header

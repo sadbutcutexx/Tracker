@@ -172,6 +172,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             addButton.heightAnchor.constraint(equalToConstant: 36),
         ])
     }
+    
+    func setCompleted(_ completed: Bool) {
+        let image = UIImage(systemName: completed ? "checkmark" : "plus")
+        addButton.setImage(image, for: .normal)
+    }
 
     // MARK: - Helpers
 
