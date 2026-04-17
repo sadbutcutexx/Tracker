@@ -38,14 +38,25 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     // MARK: - Fillter
     
     private var displayedCategories: [TrackerCategory] {
+        let selectedWeekday = weekday(from: selectedDate)
+
         let filtered = categories.map { category in
-            let trackers = category.trackers.filter {
-                searchText.isEmpty ||
-                $0.title.lowercased().contains(searchText.lowercased())
+            let trackers = category.trackers.filter { tracker in
+
+                let matchesSearch =
+                    searchText.isEmpty ||
+                    tracker.title.lowercased().contains(searchText.lowercased())
+
+                let matchesSchedule =
+                    tracker.shedule.isEmpty ||
+                    tracker.shedule.contains(selectedWeekday)
+
+                return matchesSearch && matchesSchedule
             }
+
             return TrackerCategory(title: category.title, trackers: trackers)
         }
-        
+
         return filtered.filter { !$0.trackers.isEmpty }
     }
     
@@ -257,6 +268,11 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     
     private func normalizedDate(_ date: Date) -> Date {
         Calendar.current.startOfDay(for: date)
+    }
+    
+    private func weekday(from date: Date) -> Int {
+        let calendar = Calendar.current
+        return calendar.component(.weekday, from: date)
     }
     
     private func isCompleted(_ tracker: Tracker) -> Bool {
