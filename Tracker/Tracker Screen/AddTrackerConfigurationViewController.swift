@@ -7,6 +7,8 @@ import UIKit
 import Foundation
 
 final class AddTrackerConfigurationViewController: UIViewController {
+    
+    // MARK: - Properties
 
     private let maxNameLength: Int = 38
     private var isLimitReached = false
@@ -16,6 +18,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private lazy var categoryRow: UIView = makeSimpleRow(title: "Категория")
     private var selectedDays: [SheduleDaysPicker.WeekDay] = []
     weak var delegate: TrackerScreenProtocol?
+    
+    // MARK: - Setup Views
 
     private let limitLabel: UILabel = {
         let label = UILabel()
@@ -135,10 +139,13 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private var scheduleTitleCenterYConstraint: NSLayoutConstraint!
     private var scheduleTitleTopConstraint: NSLayoutConstraint!
     private var scheduleSubtitleBottomConstraint: NSLayoutConstraint!
+    
+    // MARK: - Lifecyclee
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        updateCreateButtonState()
         
         view.backgroundColor = .white
 
@@ -162,6 +169,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
         super.viewWillAppear(animated)
         resetUI()
     }
+    
+    // MARK: - Private Methods
 
     private func setupConstraints(
         dismissButton: UIButton,
@@ -314,6 +323,22 @@ final class AddTrackerConfigurationViewController: UIViewController {
             animations()
         }
     }
+    
+    private func updateCreateButtonState() {
+        let hasText = !(trackerNameField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        let hasDays = !selectedDays.isEmpty
+
+        let isEnabled = hasText && hasDays
+
+        createTrackerButton.isEnabled = isEnabled
+        createTrackerButton.configuration?.baseBackgroundColor = isEnabled
+            ? .black
+            : UIColor.systemGray4
+
+        createTrackerButton.configuration?.baseForegroundColor = .white
+    }
+    
+    // MARK: - Private Actions
 
     @objc private func dismissButtonTapped(_ sender: UIButton) {
         dismiss(animated: true)
@@ -349,14 +374,18 @@ final class AddTrackerConfigurationViewController: UIViewController {
         UIView.animate(withDuration: 0.25) {
             self.view.layoutIfNeeded()
         }
+
+        updateCreateButtonState()
     }
 
     @objc private func scheduleRowTapped() {
         let picker = SheduleDaysPicker()
         picker.selectedDays = selectedDays
+
         picker.onDaysSelected = { [weak self] days in
             self?.selectedDays = days
             self?.updateScheduleRow()
+            self?.updateCreateButtonState()
         }
         
         view.endEditing(true)
@@ -364,6 +393,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
         present(picker, animated: true)
     }
 }
+
+// MARK: - UITextFieldDelegate
 
 extension AddTrackerConfigurationViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

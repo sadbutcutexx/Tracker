@@ -8,12 +8,16 @@ import UIKit
 final class CategoryHeaderView: UICollectionReusableView {
     static let reuseIdentifier = "CategoryHeaderView"
     
+    // MARK: - LAbels
+    
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .black
         return label
     }()
+    
+    // MARK: - Init
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -33,6 +37,8 @@ final class CategoryHeaderView: UICollectionReusableView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Configure
     
     func configure(title: String) {
         titleLabel.text = title

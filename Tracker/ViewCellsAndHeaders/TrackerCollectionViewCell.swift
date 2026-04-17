@@ -9,7 +9,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
 
     static let reuseIdentifier = "TrackerCollectionViewCell"
 
-    // MARK: - UI
+    // MARK: - Labels
 
     private let containerView = UIView()
     private let topView = UIView()
@@ -24,7 +24,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     var onActionTap: (() -> Void)?
 
-    // MARK: - Init
+    // MARK: - LifeCycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -179,6 +179,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     func setCompleted(_ completed: Bool) {
         let image = UIImage(systemName: completed ? "checkmark" : "plus")
         addButton.setImage(image, for: .normal)
+
+        let baseColor = topView.backgroundColor ?? .systemBlue
+
+        if completed {
+            addButton.backgroundColor = baseColor.withAlphaComponent(0.3)
+        } else {
+            addButton.backgroundColor = baseColor
+        }
     }
 
     // MARK: - Helpers

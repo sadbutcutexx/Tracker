@@ -316,7 +316,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         return formatter.string(from: date)
     }
     
-    // MARK: - Actions
+    // MARK: - Private Actions
     
     @objc private func addTrackersButtonTapped() {
         let vc = AddTrackerConfigurationViewController()
@@ -331,7 +331,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     }
 }
 
-// MARK: - Search
+// MARK: - UISearchBarDelegate
 
 extension TrackerScreenViewController: UISearchBarDelegate {
 
@@ -350,7 +350,7 @@ extension TrackerScreenViewController: UISearchBarDelegate {
     }
 }
 
-// MARK: - DataSource
+// MARK: - UICollectionViewDataSource
 
 extension TrackerScreenViewController: UICollectionViewDataSource {
 
@@ -418,7 +418,7 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
     }
 }
 
-// MARK: - Layout
+// MARK: - UICollectionViewDelegateFlowLayout
 
 extension TrackerScreenViewController: UICollectionViewDelegateFlowLayout {
 
