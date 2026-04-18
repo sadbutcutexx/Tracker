@@ -4,10 +4,9 @@
 //
 
 import UIKit
-import Foundation
 
 final class AddTrackerConfigurationViewController: UIViewController {
-    
+
     // MARK: - Properties
 
     private let maxNameLength: Int = 38
@@ -15,11 +14,11 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private var optionsTopConstraint: NSLayoutConstraint!
 
-    private lazy var categoryRow: UIView = makeSimpleRow(title: "Категория")
-    private var selectedDays: [SheduleDaysPicker.WeekDay] = []
+    private let defaultCategory = "Домашний уют"
+
     weak var delegate: TrackerScreenProtocol?
-    
-    // MARK: - Setup Views
+
+    // MARK: - UI Elements
 
     private let limitLabel: UILabel = {
         let label = UILabel()
@@ -93,12 +92,43 @@ final class AddTrackerConfigurationViewController: UIViewController {
     }()
 
     private let divider: UIView = {
-        let divider = UIView()
-        divider.backgroundColor = .systemGray4
-        divider.translatesAutoresizingMaskIntoConstraints = false
-        divider.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        return divider
+        let view = UIView()
+        view.backgroundColor = .systemGray4
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        return view
     }()
+
+    // --- Категория (как scheduleRow) ---
+
+    private let categoryTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Категория"
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let categorySubtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        label.textColor = .systemGray
+        label.textAlignment = .right
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let categoryArrowImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
+        imageView.tintColor = .systemGray3
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+    private lazy var categoryRow: UIView = makeCategoryRow()
+
+    // --- Расписание (как есть) ---
 
     private let scheduleTitleLabel: UILabel = {
         let label = UILabel()
@@ -129,24 +159,30 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private lazy var scheduleRow: UIView = makeScheduleRow()
 
+    private var scheduleTitleCenterYConstraint: NSLayoutConstraint!
+    private var scheduleTitleTopConstraint: NSLayoutConstraint!
+    private var scheduleSubtitleBottomConstraint: NSLayoutConstraint!
+
     private lazy var stack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [categoryRow, divider, scheduleRow])
+        let stack = UIStackView(arrangedSubviews: [
+            categoryRow,
+            divider,
+            scheduleRow
+        ])
         stack.axis = .vertical
+        stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
 
-    private var scheduleTitleCenterYConstraint: NSLayoutConstraint!
-    private var scheduleTitleTopConstraint: NSLayoutConstraint!
-    private var scheduleSubtitleBottomConstraint: NSLayoutConstraint!
-    
-    // MARK: - Lifecyclee
+    private var selectedDays: [SheduleDaysPicker.WeekDay] = []
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         updateCreateButtonState()
-        
         view.backgroundColor = .white
 
         trackerNameField.delegate = self
@@ -162,15 +198,103 @@ final class AddTrackerConfigurationViewController: UIViewController {
             stack: stack
         )
 
+        setupCategory()
         updateScheduleRow(animated: false)
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        resetUI()
+    // MARK: - Category UI
+
+    private func makeCategoryRow() -> UIView {
+        let row = UIView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+        row.backgroundColor = .systemGray6
+        row.layer.cornerRadius = 16
+        row.heightAnchor.constraint(equalToConstant: 60).isActive = true
+
+        row.addSubview(categoryTitleLabel)
+        row.addSubview(categorySubtitleLabel)
+        row.addSubview(categoryArrowImageView)
+
+        NSLayoutConstraint.activate([
+            categoryTitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
+            categoryTitleLabel.topAnchor.constraint(equalTo: row.topAnchor, constant: 16),
+
+            categorySubtitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
+            categorySubtitleLabel.topAnchor.constraint(equalTo: categoryTitleLabel.bottomAnchor, constant: 4),
+
+            categoryArrowImageView.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
+            categoryArrowImageView.centerYAnchor.constraint(equalTo: row.centerYAnchor)
+        ])
+
+        return row
     }
-    
-    // MARK: - Private Methods
+
+
+    private func setupCategory() {
+        categorySubtitleLabel.text = defaultCategory
+    }
+
+    // MARK: - Schedule UI
+
+    private func makeScheduleRow() -> UIView {
+        let row = UIView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+        row.backgroundColor = .systemGray6
+        row.layer.cornerRadius = 16
+        row.isUserInteractionEnabled = true
+        row.heightAnchor.constraint(equalToConstant: 60).isActive = true
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(scheduleRowTapped))
+        row.addGestureRecognizer(tap)
+
+        row.addSubview(scheduleTitleLabel)
+        row.addSubview(scheduleSubtitleLabel)
+        row.addSubview(scheduleArrowImageView)
+
+        scheduleTitleCenterYConstraint = scheduleTitleLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor)
+        scheduleTitleTopConstraint = scheduleTitleLabel.topAnchor.constraint(equalTo: row.topAnchor, constant: 8)
+        scheduleSubtitleBottomConstraint = scheduleSubtitleLabel.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -8)
+
+        NSLayoutConstraint.activate([
+            scheduleTitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
+            scheduleTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: scheduleArrowImageView.leadingAnchor, constant: -12),
+
+            scheduleSubtitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
+            scheduleSubtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: scheduleArrowImageView.leadingAnchor, constant: -12),
+
+            scheduleArrowImageView.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
+            scheduleArrowImageView.centerYAnchor.constraint(equalTo: row.centerYAnchor)
+        ])
+
+        scheduleTitleCenterYConstraint.isActive = true
+        return row
+    }
+
+    private func updateScheduleRow(animated: Bool = true) {
+        let hasDays = !selectedDays.isEmpty
+
+        scheduleSubtitleLabel.text = hasDays
+            ? selectedDays.map { $0.shortName }.joined(separator: ", ")
+            : "Не выбрано"
+
+        scheduleSubtitleLabel.isHidden = !hasDays
+
+        scheduleTitleCenterYConstraint.isActive = !hasDays
+        scheduleTitleTopConstraint.isActive = hasDays
+        scheduleSubtitleBottomConstraint.isActive = hasDays
+
+        let animations = {
+            self.view.layoutIfNeeded()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: animations)
+        } else {
+            animations()
+        }
+    }
+
+    // MARK: - Setup Constraints
 
     private func setupConstraints(
         dismissButton: UIButton,
@@ -224,70 +348,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
         ])
     }
 
-    private func makeSimpleRow(title: String) -> UIView {
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 17, weight: .regular)
-        titleLabel.textColor = .label
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        let arrow = UIImageView(image: UIImage(systemName: "chevron.right"))
-        arrow.tintColor = .systemGray3
-        arrow.translatesAutoresizingMaskIntoConstraints = false
-
-        let row = UIView()
-        row.translatesAutoresizingMaskIntoConstraints = false
-
-        row.addSubview(titleLabel)
-        row.addSubview(arrow)
-
-        NSLayoutConstraint.activate([
-            row.heightAnchor.constraint(equalToConstant: 60),
-
-            titleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor),
-
-            arrow.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
-            arrow.centerYAnchor.constraint(equalTo: row.centerYAnchor),
-
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: arrow.leadingAnchor, constant: -12)
-        ])
-
-        return row
-    }
-
-    private func makeScheduleRow() -> UIView {
-        let row = UIView()
-        row.translatesAutoresizingMaskIntoConstraints = false
-        row.isUserInteractionEnabled = true
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(scheduleRowTapped))
-        row.addGestureRecognizer(tap)
-
-        row.addSubview(scheduleTitleLabel)
-        row.addSubview(scheduleSubtitleLabel)
-        row.addSubview(scheduleArrowImageView)
-
-        scheduleTitleCenterYConstraint = scheduleTitleLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor)
-        scheduleTitleTopConstraint = scheduleTitleLabel.topAnchor.constraint(equalTo: row.topAnchor, constant: 8)
-        scheduleSubtitleBottomConstraint = scheduleSubtitleLabel.bottomAnchor.constraint(equalTo: row.bottomAnchor, constant: -8)
-
-        NSLayoutConstraint.activate([
-            row.heightAnchor.constraint(equalToConstant: 60),
-
-            scheduleTitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
-            scheduleTitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: scheduleArrowImageView.leadingAnchor, constant: -12),
-
-            scheduleSubtitleLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor, constant: 16),
-            scheduleSubtitleLabel.trailingAnchor.constraint(lessThanOrEqualTo: scheduleArrowImageView.leadingAnchor, constant: -12),
-
-            scheduleArrowImageView.trailingAnchor.constraint(equalTo: row.trailingAnchor, constant: -16),
-            scheduleArrowImageView.centerYAnchor.constraint(equalTo: row.centerYAnchor)
-        ])
-
-        scheduleTitleCenterYConstraint.isActive = true
-        return row
-    }
+    // MARK: - Private Methods
 
     private func resetUI() {
         trackerNameField.text = ""
@@ -300,30 +361,6 @@ final class AddTrackerConfigurationViewController: UIViewController {
         view.layoutIfNeeded()
     }
 
-    private func updateScheduleRow(animated: Bool = true) {
-        let hasDays = !selectedDays.isEmpty
-
-        scheduleSubtitleLabel.text = hasDays
-            ? selectedDays.map { $0.shortName }.joined(separator: ", ")
-            : "Не выбрано"
-
-        scheduleSubtitleLabel.isHidden = !hasDays
-
-        scheduleTitleCenterYConstraint.isActive = !hasDays
-        scheduleTitleTopConstraint.isActive = hasDays
-        scheduleSubtitleBottomConstraint.isActive = hasDays
-
-        let animations = {
-            self.view.layoutIfNeeded()
-        }
-
-        if animated {
-            UIView.animate(withDuration: 0.25, animations: animations)
-        } else {
-            animations()
-        }
-    }
-    
     private func updateCreateButtonState() {
         let hasText = !(trackerNameField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
         let hasDays = !selectedDays.isEmpty
@@ -334,11 +371,10 @@ final class AddTrackerConfigurationViewController: UIViewController {
         createTrackerButton.configuration?.baseBackgroundColor = isEnabled
             ? .black
             : UIColor.systemGray4
-
         createTrackerButton.configuration?.baseForegroundColor = .white
     }
-    
-    // MARK: - Private Actions
+
+    // MARK: - Actions
 
     @objc private func dismissButtonTapped(_ sender: UIButton) {
         dismiss(animated: true)
@@ -354,11 +390,13 @@ final class AddTrackerConfigurationViewController: UIViewController {
             emoji: "🙂",
             shedule: selectedDays.map { $0.rawValue }
         )
-        
-        delegate?.newTrackerAdded(tracker)
+
+        // Передаём трекер + фиксированную категорию
+        delegate?.newTrackerAdded(tracker, categoryTitle: defaultCategory)
+
         dismiss(animated: true)
     }
-    
+
     @objc private func textDidChanged() {
         let count = trackerNameField.text?.count ?? 0
         let newState = count >= maxNameLength
@@ -387,9 +425,8 @@ final class AddTrackerConfigurationViewController: UIViewController {
             self?.updateScheduleRow()
             self?.updateCreateButtonState()
         }
-        
-        view.endEditing(true)
 
+        view.endEditing(true)
         present(picker, animated: true)
     }
 }
@@ -397,7 +434,11 @@ final class AddTrackerConfigurationViewController: UIViewController {
 // MARK: - UITextFieldDelegate
 
 extension AddTrackerConfigurationViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let currentText = textField.text,
               let textRange = Range(range, in: currentText)
         else { return false }

@@ -6,7 +6,7 @@
 import UIKit
 
 protocol TrackerScreenProtocol: AnyObject {
-    func newTrackerAdded(_ tracker: Tracker)
+    func newTrackerAdded(_ tracker: Tracker, categoryTitle: String)
 }
 
 final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol {
@@ -27,39 +27,34 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     private var selectedDate: Date = Date()
     private var completedTrackers: [TrackerRecord] = []
     
-    // MARK: - Categories
-    
     var categories: [TrackerCategory] = [
-        TrackerCategory(title: "Домашний уют", trackers: []),
-        TrackerCategory(title: "Здоровье", trackers: []),
-        TrackerCategory(title: "Работа", trackers: [])
-    ]
+            TrackerCategory(title: "Домашний уют", trackers: []),
+            TrackerCategory(title: "Здоровье", trackers: []),
+            TrackerCategory(title: "Работа", trackers: [])
+        ]
     
     // MARK: - Fillter
     
     private var displayedCategories: [TrackerCategory] {
         let selectedWeekday = weekday(from: selectedDate)
-
+        
         let filtered = categories.map { category in
             let trackers = category.trackers.filter { tracker in
-
+                
                 let matchesSearch =
-                    searchText.isEmpty ||
-                    tracker.title.lowercased().contains(searchText.lowercased())
-
+                searchText.isEmpty ||
+                tracker.title.lowercased().contains(searchText.lowercased())
+                
                 let matchesSchedule =
-                    tracker.shedule.isEmpty ||
-                    tracker.shedule.contains(selectedWeekday)
-
+                tracker.shedule.isEmpty ||
+                tracker.shedule.contains(selectedWeekday)
+                
                 return matchesSearch && matchesSchedule
             }
-
+            
             return TrackerCategory(title: category.title, trackers: trackers)
         }
         
-        print("filtered (до фильтра по пустым трекерам): \(filtered)")
-            print("filtered с tracker.count: \(filtered.map { "\($0.title): \($0.trackers.count)" })")
-
         return filtered.filter { !$0.trackers.isEmpty }
     }
     
@@ -237,18 +232,31 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     
     // MARK: - Add Tracker
     
-    func newTrackerAdded(_ tracker: Tracker) {
-        let randomIndex = Int.random(in: 0..<categories.count)
-        
-        // Создаём новую категорию с добавленным трекером
-        let newTrackers = categories[randomIndex].trackers + [tracker]
+    func newTrackerAdded(_ tracker: Tracker, categoryTitle: String) {
+        // Найдём категорию по её названию
+        let categoryIndex = categories.firstIndex { $0.title == categoryTitle }
+        guard let index = categoryIndex else {
+            // Если не найдена — добавляем в рандомную
+            let randomIndex = Int.random(in: 0..<categories.count)
+            let category = categories[randomIndex]
+            let newTrackers = category.trackers + [tracker]
+            let newCategory = TrackerCategory(
+                title: category.title,
+                trackers: newTrackers
+            )
+            categories[randomIndex] = newCategory
+            return
+        }
+
+        // Обновляем выбранную категорию
+        let category = categories[index]
+        let newTrackers = category.trackers + [tracker]
         let newCategory = TrackerCategory(
-            title: categories[randomIndex].title,
+            title: category.title,
             trackers: newTrackers
         )
-        
-        categories[randomIndex] = newCategory
-        
+        categories[index] = newCategory
+
         trackerCollectionView?.reloadData()
         updateEmptyState()
     }
