@@ -54,7 +54,7 @@ final class SheduleDaysPicker: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Рассписание"
+        label.text = "Расписание"
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ final class SheduleDaysPicker: UIViewController {
     
     private let readyButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Создать"
+        config.title = "Готово"
         config.baseBackgroundColor = .black
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
         

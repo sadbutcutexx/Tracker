@@ -24,7 +24,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     //MARK: - Properties
     
     private var searchText: String = ""
-    private var selectedDate: Date = Date()
+    private var currentDate: Date = Date()
     private var completedTrackers: [TrackerRecord] = []
     
     var categories: [TrackerCategory] = [
@@ -36,7 +36,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     // MARK: - Fillter
     
     private var displayedCategories: [TrackerCategory] {
-        let selectedWeekday = weekday(from: selectedDate)
+        let selectedWeekday = weekday(from: currentDate)
         
         let filtered = categories.map { category in
             let trackers = category.trackers.filter { tracker in
@@ -233,10 +233,9 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     // MARK: - Add Tracker
     
     func newTrackerAdded(_ tracker: Tracker, categoryTitle: String) {
-        // Найдём категорию по её названию
+        
         let categoryIndex = categories.firstIndex { $0.title == categoryTitle }
         guard let index = categoryIndex else {
-            // Если не найдена — добавляем в рандомную
             let randomIndex = Int.random(in: 0..<categories.count)
             let category = categories[randomIndex]
             let newTrackers = category.trackers + [tracker]
@@ -248,7 +247,6 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
             return
         }
 
-        // Обновляем выбранную категорию
         let category = categories[index]
         let newTrackers = category.trackers + [tracker]
         let newCategory = TrackerCategory(
@@ -290,16 +288,16 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     }
     
     private func isCompleted(_ tracker: Tracker) -> Bool {
-        let key = dateKey(selectedDate)
+        let key = dateKey(currentDate)
         return completedTrackers.contains { $0.trackerId == tracker.id && $0.date == key }
     }
     
     private func toggleTracker(_ tracker: Tracker) {
         let today = Calendar.current.startOfDay(for: Date())
-        let selected = Calendar.current.startOfDay(for: selectedDate)
+        let selected = Calendar.current.startOfDay(for: currentDate)
         guard selected <= today else { return }
 
-        let key = dateKey(selectedDate)
+        let key = dateKey(currentDate)
 
         if let index = completedTrackers.firstIndex(where: { $0.trackerId == tracker.id && $0.date == key }) {
             // Удаляем дату (уже отмечено как завершённое)
@@ -334,7 +332,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
-        selectedDate = sender.date
+        currentDate = sender.date
         trackerCollectionView?.reloadData()
         updateEmptyState()
     }
@@ -396,7 +394,7 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
         cell.setCompleted(isCompleted(tracker))
         
         let today = Calendar.current.startOfDay(for: Date())
-        let selected = Calendar.current.startOfDay(for: selectedDate)
+        let selected = Calendar.current.startOfDay(for: currentDate)
 
         let isFuture = selected > today
         cell.setActionEnabled(!isFuture)
