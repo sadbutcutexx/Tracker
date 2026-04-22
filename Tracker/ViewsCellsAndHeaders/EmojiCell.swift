@@ -33,7 +33,7 @@ final class EmojiCell: UICollectionViewCell {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             emojiLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            emojiLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
     }
 

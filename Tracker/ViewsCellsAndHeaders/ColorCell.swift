@@ -11,8 +11,8 @@ final class ColorCell: UICollectionViewCell {
     private let colorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 14
-        view.layer.masksToBounds = true
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 16
         return view
     }()
 
@@ -27,10 +27,7 @@ final class ColorCell: UICollectionViewCell {
     }
 
     private func setupUI() {
-        contentView.backgroundColor = .clear
-        contentView.layer.cornerRadius = 16
         contentView.layer.masksToBounds = false
-        contentView.layer.borderWidth = 1
         contentView.layer.borderColor = UIColor.clear.cgColor
         contentView.addSubview(colorView)
     }
@@ -40,7 +37,7 @@ final class ColorCell: UICollectionViewCell {
             colorView.topAnchor.constraint(equalTo: contentView.topAnchor),
             colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         ])
     }
 

@@ -44,16 +44,10 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     
-    private let itemsPerRow: CGFloat = 6
-    private let itemSpacing: CGFloat = 12
-    private let sectionInset: CGFloat = 0
     private let rowsCount: CGFloat = 3
-    
-    private var collectionHeight: CGFloat {
-        let totalSpacing = itemSpacing * (itemsPerRow - 1)
-        let itemSize = (view.bounds.width - 32 - totalSpacing) / itemsPerRow
-        return rowsCount * itemSize + (rowsCount - 1) * itemSpacing
-    }
+    private let itemsPerRow: CGFloat = 6
+    private let itemSpacing: CGFloat = 5
+    private let sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
 
     // MARK: - UI Elements
     
@@ -76,8 +70,9 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private let emojiCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 12
-        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 5
+        layout.minimumLineSpacing = 5
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
@@ -89,8 +84,9 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private let colorCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumInteritemSpacing = 12
-        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 5
+        layout.minimumLineSpacing = 5
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .clear
@@ -282,7 +278,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
             emojiCollectionView.topAnchor.constraint(equalTo: emojiTitleLabel.bottomAnchor, constant: 12),
             emojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             emojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 130),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 140),
 
             colorTitleLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 24),
             colorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -291,7 +287,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
             colorCollectionView.topAnchor.constraint(equalTo: colorTitleLabel.bottomAnchor, constant: 12),
             colorCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             colorCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 130)
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 140)
         ])
     }
 
@@ -491,9 +487,11 @@ extension AddTrackerConfigurationViewController: UICollectionViewDataSource, UIC
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        let totalSpacing = itemSpacing * (itemsPerRow - 1)
-        let width = (collectionView.bounds.width - totalSpacing) / itemsPerRow
-        return CGSize(width: width, height: width)
+        if collectionView == emojiCollectionView {
+            return CGSize(width: 52, height: 52)
+        } else {
+            return CGSize(width: 52, height: 52)
+        }
     }
 
     func collectionView(
@@ -510,10 +508,7 @@ extension AddTrackerConfigurationViewController: UICollectionViewDataSource, UIC
         itemSpacing
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        insetForSectionAt section: Int) -> UIEdgeInsets {
-        .zero
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        sectionInset
     }
 }
