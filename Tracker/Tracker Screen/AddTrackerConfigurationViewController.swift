@@ -51,6 +51,19 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     // MARK: - UI Elements
     
+    private let scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.showsVerticalScrollIndicator = false
+        return scroll
+    }()
+
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Emoji"
@@ -233,61 +246,101 @@ final class AddTrackerConfigurationViewController: UIViewController {
         colorTitleLabel: UILabel,
         colorCollectionView: UICollectionView
     ) {
-        view.addSubview(dismissButton)
-        view.addSubview(createTrackerButton)
-        view.addSubview(titleLabel)
-        view.addSubview(trackerNameField)
-        view.addSubview(limitLabel)
-        view.addSubview(tableView)
-        view.addSubview(emojiTitleLabel)
-        view.addSubview(emojiCollectionView)
-        view.addSubview(colorTitleLabel)
-        view.addSubview(colorCollectionView)
+        
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(trackerNameField)
+        contentView.addSubview(limitLabel)
+        contentView.addSubview(tableView)
+        contentView.addSubview(emojiTitleLabel)
+        contentView.addSubview(emojiCollectionView)
+        contentView.addSubview(colorTitleLabel)
+        contentView.addSubview(colorCollectionView)
+        contentView.addSubview(dismissButton)
+        contentView.addSubview(createTrackerButton)
 
         NSLayoutConstraint.activate([
-            dismissButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            dismissButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            dismissButton.heightAnchor.constraint(equalToConstant: 60),
-
-            createTrackerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-            createTrackerButton.centerYAnchor.constraint(equalTo: dismissButton.centerYAnchor),
-            createTrackerButton.heightAnchor.constraint(equalTo: dismissButton.heightAnchor),
-            createTrackerButton.leadingAnchor.constraint(equalTo: dismissButton.trailingAnchor, constant: 8),
-            createTrackerButton.widthAnchor.constraint(equalTo: dismissButton.widthAnchor),
-
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 38),
-            titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-
+            
+            // MARK: - ScrollView
+            
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            // MARK: - ContentView
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            
+            // КЛЮЧЕВОЕ
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            // MARK: - Title
+            
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
+            // MARK: - TextField
+            
             trackerNameField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            trackerNameField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            trackerNameField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            trackerNameField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            trackerNameField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             trackerNameField.heightAnchor.constraint(equalToConstant: 75),
-
+            
+            // MARK: - Limit Label
+            
             limitLabel.topAnchor.constraint(equalTo: trackerNameField.bottomAnchor, constant: 8),
-            limitLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-
+            limitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
+            // MARK: - TableView
+            
             tableView.topAnchor.constraint(equalTo: limitLabel.bottomAnchor, constant: 32),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             tableView.heightAnchor.constraint(equalToConstant: 150),
             
+            // MARK: - Emoji
+            
             emojiTitleLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
-            emojiTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            emojiTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-
+            emojiTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emojiTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            
             emojiCollectionView.topAnchor.constraint(equalTo: emojiTitleLabel.bottomAnchor, constant: 12),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 140),
-
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 205),
+            
+            // MARK: - Color
+            
             colorTitleLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 24),
-            colorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            colorTitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-
+            colorTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            colorTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            
             colorCollectionView.topAnchor.constraint(equalTo: colorTitleLabel.bottomAnchor, constant: 12),
-            colorCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            colorCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 140)
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 205),
+            
+            // MARK: - Buttons
+            
+            dismissButton.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 40),
+            dismissButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            dismissButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            createTrackerButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            createTrackerButton.leadingAnchor.constraint(equalTo: dismissButton.trailingAnchor, constant: 8),
+            createTrackerButton.centerYAnchor.constraint(equalTo: dismissButton.centerYAnchor),
+            createTrackerButton.heightAnchor.constraint(equalTo: dismissButton.heightAnchor),
+            createTrackerButton.widthAnchor.constraint(equalTo: dismissButton.widthAnchor),
+            
+            // MARK: - Lower Content
+            
+            dismissButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }
 

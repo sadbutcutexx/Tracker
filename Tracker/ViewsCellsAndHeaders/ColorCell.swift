@@ -8,11 +8,19 @@ import UIKit
 final class ColorCell: UICollectionViewCell {
     static let reuseIdentifier = "ColorCell"
 
+    private let selectionView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 16
+        view.isHidden = true
+        return view
+    }()
+
     private let colorView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 12
         view.clipsToBounds = true
-        view.layer.cornerRadius = 16
         return view
     }()
 
@@ -27,30 +35,39 @@ final class ColorCell: UICollectionViewCell {
     }
 
     private func setupUI() {
-        contentView.layer.masksToBounds = false
-        contentView.layer.borderColor = UIColor.clear.cgColor
+        contentView.addSubview(selectionView)
         contentView.addSubview(colorView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            colorView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            selectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            selectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            selectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            selectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+
+            colorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
+            colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
+            colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -6),
+            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
         ])
     }
 
     func configure(with color: UIColor, isSelected: Bool) {
         colorView.backgroundColor = color
-        contentView.layer.borderColor = isSelected ? UIColor.black.cgColor : UIColor.clear.cgColor
-        contentView.layer.borderWidth = isSelected ? 2 : 1
+
+        if isSelected {
+            selectionView.isHidden = false
+            selectionView.backgroundColor = color.withAlphaComponent(0.3)
+        } else {
+            selectionView.isHidden = true
+        }
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        selectionView.isHidden = true
         colorView.backgroundColor = .clear
-        contentView.layer.borderColor = UIColor.clear.cgColor
-        contentView.layer.borderWidth = 1
     }
 }
