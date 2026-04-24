@@ -487,11 +487,13 @@ extension AddTrackerConfigurationViewController: UICollectionViewDataSource, UIC
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        if collectionView == emojiCollectionView {
-            return CGSize(width: 52, height: 52)
-        } else {
-            return CGSize(width: 52, height: 52)
-        }
+        let flowLayout = collectionViewLayout as! UICollectionViewFlowLayout
+        let totalSpacing = flowLayout.sectionInset.left
+            + flowLayout.sectionInset.right
+            + flowLayout.minimumInteritemSpacing * (itemsPerRow - 1)
+
+        let itemWidth = floor((collectionView.bounds.width - totalSpacing) / itemsPerRow)
+        return CGSize(width: itemWidth, height: itemWidth)
     }
 
     func collectionView(
