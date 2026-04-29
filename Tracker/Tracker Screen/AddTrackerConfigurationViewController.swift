@@ -179,7 +179,6 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         updateCreateButtonState()
         
         view.backgroundColor = .white
@@ -375,10 +374,16 @@ final class AddTrackerConfigurationViewController: UIViewController {
             emoji: selectedEmoji ?? "🙂",
             shedule: selectedDays.map { $0.rawValue }
         )
+        
+        do {
+            try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: defaultCategory)
+            
+            delegate?.newTrackerAdded(tracker, categoryTitle: defaultCategory)
 
-        delegate?.newTrackerAdded(tracker, categoryTitle: defaultCategory)
-
-        dismiss(animated: true)
+            dismiss(animated: true)
+        } catch {
+            print("Ошибка сохранения трекера: \(error)")
+        }
     }
 
     @objc private func textDidChanged() {

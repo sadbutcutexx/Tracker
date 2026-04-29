@@ -6,81 +6,98 @@
 import CoreData
 import UIKit
 
+protocol TrackerStoreDelegate: AnyObject {
+    func trackerCoreDataDidChange(_ store: TrackerStore)
+}
 
 final class TrackerStore: NSObject {
-    
-    static let shared: TrackerStore = TrackerStore()
+    static let shared = TrackerStore()
     private let context: NSManagedObjectContext
+    weak var delegate: TrackerStoreDelegate?
     
-    override convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
+        let request = TrackerCoreData.fetchRequest()
         
-        try! self.init(context: context)
-    }
+        request.sortDescriptors = [NSSortDescriptor(key: "category.title", ascending: true)]
+        
+        let controller = NSFetchedResultsController(
+                    fetchRequest: request,
+                    managedObjectContext: context,
+                    sectionNameKeyPath: "category.title",
+                    cacheName: nil
+            )
+        
+        controller.delegate = self
+        return controller
+    }()
     
+    func performFetch() throws {
+        try fetchedResultsController.performFetch()
+    }
+
+    override convenience init() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.init(context: appDelegate.persistentContainer.viewContext)
+    }
+
     private init(context: NSManagedObjectContext) {
         self.context = context
     }
-    
-    private func setupTracker(tracker trackerModel: Tracker, category: TrackerCategoryCoreData) throws {
+
+    func saveTracker(trackerModel: Tracker, categoryTitle: String) throws {
+        let categoryRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
+        
+        let category: TrackerCategoryCoreData
+        if let existing = try? context.fetch(categoryRequest).first {
+            category = existing
+        } else {
+            category = TrackerCategoryCoreData(context: context)
+            category.title = categoryTitle
+        }
+
         let trackerCoreData = TrackerCoreData(context: context)
         trackerCoreData.id = trackerModel.id
         trackerCoreData.title = trackerModel.title
         trackerCoreData.emoji = trackerModel.emoji
-        trackerCoreData.color = trackerModel.color
-        trackerCoreData.schedule = trackerModel.shedule
+        trackerCoreData.color = trackerModel.color as NSObject
+        trackerCoreData.schedule = trackerModel.shedule as NSObject
         trackerCoreData.category = category
 
         try context.save()
     }
-    
-    private func loadData() -> [TrackerCategory] {
+
+    func loadTrackers() -> [TrackerCategory] {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        guard let trackerObjects = try? context.fetch(request) else { return [] }
 
-        guard let trackerObjects = try? context.fetch(request) else {
-            return []
-        }
+        let grouped = Dictionary(grouping: trackerObjects) { $0.category?.title ?? "Без категории" }
+        
+        return grouped.map { (key, trackers) in
+            let models = trackers.compactMap { obj -> Tracker? in
+                guard
+                    let id = obj.id,
+                    let title = obj.title,
+                    let emoji = obj.emoji,
+                    let color = obj.color as? UIColor
+                else { return nil }
 
-        let trackers: [Tracker] = trackerObjects.compactMap { trackerCoreData in
-            guard
-                let id = trackerCoreData.id,
-                let title = trackerCoreData.title,
-                let emoji = trackerCoreData.emoji,
-                let color = trackerCoreData.color as? UIColor
-            else { return nil }
-
-            let schedule = trackerCoreData.schedule as? [Int] ?? []
-
-            return Tracker(
-                id: id,
-                title: title,
-                color: color,
-                emoji: emoji,
-                shedule: schedule
-            )
-        }
-
-        let grouped = Dictionary(grouping: trackerObjects.compactMap { trackerCoreData -> (String, Tracker)? in
-            guard
-                let categoryTitle = trackerCoreData.category?.title,
-                let id = trackerCoreData.id,
-                let title = trackerCoreData.title,
-                let emoji = trackerCoreData.emoji,
-                let color = trackerCoreData.color as? UIColor
-            else { return nil }
-
-            let schedule = trackerCoreData.schedule as? [Int] ?? []
-            let tracker = Tracker(id: id, title: title, color: color, emoji: emoji, shedule: schedule)
-            return (categoryTitle, tracker)
-        }, by: { $0.0 })
-
-        return grouped
-            .map { key, values in
-                TrackerCategory(
-                    title: key,
-                    trackers: values.map { $0.1 }
-                )
+                let schedule = obj.schedule as? [Int] ?? []
+                
+                return Tracker(id: id, title: title, color: color, emoji: emoji, shedule: schedule)
             }
-            .sorted { $0.title < $1.title }
+            return TrackerCategory(title: key, trackers: models)
+        }.sorted { $0.title < $1.title }
+    }
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        
+        delegate?.trackerCoreDataDidChange(self)
     }
 }

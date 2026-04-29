@@ -3,40 +3,60 @@
 //  Tracker
 //
 
+import Foundation
 import CoreData
 import UIKit
 
-
 final class TrackerRecordStore: NSObject {
-    
-    static let shared: TrackerRecordStore = TrackerRecordStore()
+    static let shared = TrackerRecordStore()
     private let context: NSManagedObjectContext
-    
+
     override convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        
-        try! self.init(context: context)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.init(context: appDelegate.persistentContainer.viewContext)
     }
-    
+
     private init(context: NSManagedObjectContext) {
         self.context = context
     }
-    
-    private func saveRecord(trackerRecordModel model: TrackerRecord) {
+
+    // Сохранение записи
+    func addRecord(trackerId: UUID, dateString: String) throws {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        
+        guard let tracker = try context.fetch(request).first else { return }
+
         let record = TrackerRecordCoreData(context: context)
-        record.date = model.date
-        record.trackerID = model.trackerId
+        record.date = dateString
+        record.trackerId = tracker
+        
         try context.save()
     }
-    
-    private func loadRecords() -> [TrackerRecord] {
-        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
 
+    func removeRecord(trackerId: UUID, dateString: String) throws {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "tracker.id == %@ AND date == %@",
+                                        trackerId as CVarArg, dateString)
+        
+        let records = try context.fetch(request)
+        for record in records {
+            context.delete(record)
+        }
+        try context.save()
+    }
+
+    func loadRecords() -> [TrackerRecord] {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        
         guard let records = try? context.fetch(request) else { return [] }
 
-        return records.compactMap {
-            guard let trackerId = $0.trackerID, let date = $0.date else { return TrackerRecord }
-            return TrackerRecord(trackerId: trackerId, date: date)
+        return records.compactMap { (record: TrackerRecordCoreData) -> TrackerRecord? in
+            guard let id = record.trackerId?.id,
+                  let date = record.date
+            else { return nil }
+            
+            return TrackerRecord(trackerId: id, date: date)
         }
     }
 }

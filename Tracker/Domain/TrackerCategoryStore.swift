@@ -37,8 +37,4 @@ final class TrackerCategoryStore: NSObject {
 
         try context.save()
     }
-    
-    private func loadData() -> [TrackerCategory] {
-        //TODO: - Code
-    }
 }

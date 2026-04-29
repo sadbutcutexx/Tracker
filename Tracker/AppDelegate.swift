@@ -15,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = ViewController()
         window?.makeKeyAndVisible()
+        UIColorTransformer.register()
+        ArrayIntTransformer.register()
         return true
     }
 
