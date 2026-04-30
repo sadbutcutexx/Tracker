@@ -28,7 +28,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     private var completedTrackers: [TrackerRecord] = []
     
     private var categories: [TrackerCategory] {
-        TrackerStore.shared.loadTrackers()
+        TrackerStore.shared.getCategories()
     }
     
     // MARK: - Fillter
@@ -38,16 +38,17 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
-            super.viewDidLoad()
-            
-            TrackerStore.shared.delegate = self
-            setupViewsAndConstraints()
-            
-            try? TrackerStore.shared.performFetch()
-            updateData()
-            
-            navigationController?.setNavigationBarHidden(true, animated: false)
-        }
+        super.viewDidLoad()
+        
+        TrackerStore.shared.delegate = self
+        setupViewsAndConstraints()
+        completedTrackers = TrackerRecordStore.shared.loadRecords()
+        
+        try? TrackerStore.shared.performFetch()
+        updateData()
+        
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
     
     // MARK: - Setup
@@ -89,15 +90,6 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         
         view.backgroundColor = UIColor(named: "White [iOS]")
     }
-    
-    private func updateData() {
-            let allCategories = TrackerStore.shared.loadTrackers()
-            
-            self.displayedCategories = allCategories.filter { !$0.trackers.isEmpty }
-            
-            trackerCollectionView?.reloadData()
-            updateEmptyState()
-        }
     
     private func setupConstraints(
         addTrackerButton: UIButton,
@@ -220,6 +212,45 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         return collectionView
     }
     
+    // MARK: - Private Methods
+    
+    private func updateData() {
+        let allCategories = TrackerStore.shared.getCategories()
+
+        let filtered = allCategories.compactMap { category -> TrackerCategory? in
+            let trackers = category.trackers.filter { tracker in
+                let matchesSearch =
+                    searchText.isEmpty ||
+                    tracker.title.lowercased().contains(searchText.lowercased())
+
+                let matchesDate = isTrackerVisible(tracker)
+
+                return matchesSearch && matchesDate
+            }
+
+            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
+        }
+
+        displayedCategories = filtered
+
+        trackerCollectionView?.reloadData()
+        updateEmptyState()
+    }
+    
+    private func isTrackerVisible(_ tracker: Tracker) -> Bool {
+        if tracker.shedule.isEmpty {
+            return true
+        }
+        
+        let weekday = weekdayNormalized(from: currentDate)
+        return tracker.shedule.contains(weekday)
+    }
+    
+    private func weekdayNormalized(from date: Date) -> Int {
+        let weekday = Calendar.current.component(.weekday, from: date)
+        return weekday == 1 ? 7 : weekday
+    }
+    
     // MARK: - Add Tracker
     
     func newTrackerAdded(_ tracker: Tracker, categoryTitle: String) {
@@ -265,24 +296,21 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     }
     
     private func toggleTracker(_ tracker: Tracker) {
-        let today = Calendar.current.startOfDay(for: Date())
-        let selected = Calendar.current.startOfDay(for: currentDate)
-        guard selected <= today else { return }
-
         let key = dateKey(currentDate)
 
-        if let index = completedTrackers.firstIndex(where: { $0.trackerId == tracker.id && $0.date == key }) {
-            // Удаляем дату (уже отмечено как завершённое)
-            completedTrackers.remove(at: index)
-        } else {
-            // Добавляем дату как завершённую
-            let newRecord = TrackerRecord(
+        if isCompleted(tracker) {
+            try? TrackerRecordStore.shared.removeRecord(
                 trackerId: tracker.id,
-                date: key
+                dateString: key
             )
-            completedTrackers.append(newRecord)
+        } else {
+            try? TrackerRecordStore.shared.addRecord(
+                trackerId: tracker.id,
+                dateString: key
+            )
         }
 
+        completedTrackers = TrackerRecordStore.shared.loadRecords()
         trackerCollectionView?.reloadData()
     }
     
@@ -305,8 +333,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
-        trackerCollectionView?.reloadData()
-        updateEmptyState()
+        updateData()
     }
 }
 
@@ -316,8 +343,7 @@ extension TrackerScreenViewController: UISearchBarDelegate {
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         self.searchText = searchText
-        trackerCollectionView?.reloadData()
-        updateEmptyState()
+        updateData()
     }
 
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -353,7 +379,7 @@ extension TrackerScreenViewController: UICollectionViewDataSource {
 
         let category = displayedCategories[indexPath.section]
         let tracker = category.trackers[indexPath.item]
-        let days = completedTrackers.count { $0.trackerId == tracker.id }
+        let days = completedTrackers.filter { $0.trackerId == tracker.id }.count
         
         cell.configure(
             emoji: tracker.emoji,

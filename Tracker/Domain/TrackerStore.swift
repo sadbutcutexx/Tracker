@@ -16,16 +16,19 @@ final class TrackerStore: NSObject {
     weak var delegate: TrackerStoreDelegate?
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
-        let request = TrackerCoreData.fetchRequest()
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         
-        request.sortDescriptors = [NSSortDescriptor(key: "category.title", ascending: true)]
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "category.title", ascending: true),
+            NSSortDescriptor(key: "title", ascending: true)
+        ]
         
         let controller = NSFetchedResultsController(
-                    fetchRequest: request,
-                    managedObjectContext: context,
-                    sectionNameKeyPath: "category.title",
-                    cacheName: nil
-            )
+            fetchRequest: request,
+            managedObjectContext: context,
+            sectionNameKeyPath: "category.title",
+            cacheName: nil
+        )
         
         controller.delegate = self
         return controller
@@ -45,6 +48,13 @@ final class TrackerStore: NSObject {
     }
 
     func saveTracker(trackerModel: Tracker, categoryTitle: String) throws {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", trackerModel.id as CVarArg)
+
+        if let _ = try? context.fetch(request).first {
+            return
+        }
+        
         let categoryRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
         
@@ -65,17 +75,19 @@ final class TrackerStore: NSObject {
         trackerCoreData.category = category
 
         try context.save()
+        
+        print("Saved tracker:", trackerModel.title)
     }
 
-    func loadTrackers() -> [TrackerCategory] {
-        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        guard let trackerObjects = try? context.fetch(request) else { return [] }
+    func getCategories() -> [TrackerCategory] {
+        if fetchedResultsController.fetchedObjects == nil {
+            try? fetchedResultsController.performFetch()
+        }
 
-        let grouped = Dictionary(grouping: trackerObjects) { $0.category?.title ?? "Без категории" }
-        
+        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
+
+        let grouped = Dictionary(grouping: objects) { $0.category?.title ?? "Без категории" }
+
         return grouped.map { (key, trackers) in
             let models = trackers.compactMap { obj -> Tracker? in
                 guard
@@ -86,18 +98,23 @@ final class TrackerStore: NSObject {
                 else { return nil }
 
                 let schedule = obj.schedule as? [Int] ?? []
-                
-                return Tracker(id: id, title: title, color: color, emoji: emoji, shedule: schedule)
+
+                return Tracker(
+                    id: id,
+                    title: title,
+                    color: color,
+                    emoji: emoji,
+                    shedule: schedule
+                )
             }
             return TrackerCategory(title: key, trackers: models)
-        }.sorted { $0.title < $1.title }
+        }
+        .sorted { $0.title < $1.title }
     }
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
-    
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        
         delegate?.trackerCoreDataDidChange(self)
     }
 }
