@@ -20,7 +20,7 @@ final class TrackerRecordStore: NSObject {
         self.context = context
     }
 
-    // Сохранение записи
+    // Save record
     func addRecord(trackerId: UUID, dateString: String) throws {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", trackerId as NSUUID)
