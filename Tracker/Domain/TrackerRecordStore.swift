@@ -36,7 +36,7 @@ final class TrackerRecordStore: NSObject {
 
     func removeRecord(trackerId: UUID, dateString: String) throws {
         let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "tracker.id == %@ AND date == %@",
+        request.predicate = NSPredicate(format: "trackerId.id == %@ AND date == %@",
                                         trackerId as NSUUID, dateString)
         
         let records = try context.fetch(request)
