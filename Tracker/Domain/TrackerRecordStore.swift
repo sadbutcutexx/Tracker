@@ -23,7 +23,7 @@ final class TrackerRecordStore: NSObject {
     // Сохранение записи
     func addRecord(trackerId: UUID, dateString: String) throws {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        request.predicate = NSPredicate(format: "id == %@", trackerId as NSUUID)
         
         guard let tracker = try context.fetch(request).first else { return }
 
@@ -37,7 +37,7 @@ final class TrackerRecordStore: NSObject {
     func removeRecord(trackerId: UUID, dateString: String) throws {
         let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "tracker.id == %@ AND date == %@",
-                                        trackerId as CVarArg, dateString)
+                                        trackerId as NSUUID, dateString)
         
         let records = try context.fetch(request)
         for record in records {

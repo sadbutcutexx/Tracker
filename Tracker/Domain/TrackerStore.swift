@@ -19,14 +19,14 @@ final class TrackerStore: NSObject {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         
         request.sortDescriptors = [
-            NSSortDescriptor(key: "category.title", ascending: true),
+            NSSortDescriptor(key: "categoryTitle", ascending: true),
             NSSortDescriptor(key: "title", ascending: true)
         ]
-        
+
         let controller = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: context,
-            sectionNameKeyPath: "category.title",
+            sectionNameKeyPath: "categoryTitle",
             cacheName: nil
         )
         
@@ -49,7 +49,7 @@ final class TrackerStore: NSObject {
 
     func saveTracker(trackerModel: Tracker, categoryTitle: String) throws {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", trackerModel.id as CVarArg)
+        request.predicate = NSPredicate(format: "id == %@", trackerModel.id as NSUUID)
 
         if let _ = try? context.fetch(request).first {
             return
@@ -73,6 +73,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.color = trackerModel.color as NSObject
         trackerCoreData.schedule = trackerModel.shedule as NSObject
         trackerCoreData.category = category
+        trackerCoreData.categoryTitle = categoryTitle
 
         try context.save()
         
