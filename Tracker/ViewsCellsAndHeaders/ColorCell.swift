@@ -8,11 +8,12 @@ import UIKit
 final class ColorCell: UICollectionViewCell {
     static let reuseIdentifier = "ColorCell"
 
-    private let selectionView: UIView = {
+    private let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 16
-        view.isHidden = true
+        view.layer.borderWidth = 0
+        view.clipsToBounds = true
         return view
     }()
 
@@ -35,22 +36,21 @@ final class ColorCell: UICollectionViewCell {
     }
 
     private func setupUI() {
-        contentView.addSubview(selectionView)
-        contentView.addSubview(colorView)
+        contentView.addSubview(containerView)
+        containerView.addSubview(colorView)
     }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 
-            selectionView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            selectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            selectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            selectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            colorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 6),
-            colorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 6),
-            colorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -6),
-            colorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
+            colorView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 6),
+            colorView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 6),
+            colorView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -6),
+            colorView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -6),
         ])
     }
 
@@ -58,16 +58,18 @@ final class ColorCell: UICollectionViewCell {
         colorView.backgroundColor = color
 
         if isSelected {
-            selectionView.isHidden = false
-            selectionView.backgroundColor = color.withAlphaComponent(0.3)
+            containerView.layer.borderWidth = 3
+            containerView.layer.borderColor = color.withAlphaComponent(0.35).cgColor
         } else {
-            selectionView.isHidden = true
+            containerView.layer.borderWidth = 0
+            containerView.layer.borderColor = nil
         }
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        selectionView.isHidden = true
         colorView.backgroundColor = .clear
+        containerView.layer.borderWidth = 0
+        containerView.layer.borderColor = nil
     }
 }
