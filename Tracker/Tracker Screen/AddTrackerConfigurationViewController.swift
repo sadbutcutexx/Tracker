@@ -276,7 +276,6 @@ final class AddTrackerConfigurationViewController: UIViewController {
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             
-            // КЛЮЧЕВОЕ
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
             // MARK: - Title
