@@ -13,7 +13,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private let maxNameLength: Int = 38
     private var isLimitReached = false
 
-    private let defaultCategory = "Домашний уют"
+    private var selectedCategory: String?
     weak var delegate: TrackerScreenProtocol?
 
     private var tableView: UITableView!
@@ -349,8 +349,14 @@ final class AddTrackerConfigurationViewController: UIViewController {
         let hasDays = !selectedDays.isEmpty
         let hasEmoji = selectedEmoji != nil
         let hasColor = selectedColor != nil
+        let hasCategory = selectedCategory != nil
 
-        let isEnabled = hasText && hasDays && hasEmoji && hasColor
+        let isEnabled =
+            hasText &&
+            hasDays &&
+            hasEmoji &&
+            hasColor &&
+            hasCategory
 
         createTrackerButton.isEnabled = isEnabled
         createTrackerButton.configuration?.baseBackgroundColor = isEnabled ? .black : .systemGray4
@@ -375,9 +381,9 @@ final class AddTrackerConfigurationViewController: UIViewController {
         )
         
         do {
-            try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: defaultCategory)
+            try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: selectedCategory ?? "Без категории")
             
-            delegate?.newTrackerAdded(tracker, categoryTitle: defaultCategory)
+            delegate?.newTrackerAdded(tracker, categoryTitle: selectedCategory ?? "Без категории")
 
             dismiss(animated: true)
         } catch {
@@ -414,7 +420,20 @@ final class AddTrackerConfigurationViewController: UIViewController {
         view.endEditing(true)
         present(picker, animated: true)
     }
-}
+    
+    @objc private func categoryRowTapped() {
+        let viewModel = CategoryViewModel()
+        let controller = CategoryViewController(viewModel: viewModel)
+
+        controller.onCategoryPicked = { [weak self] category in
+            self?.selectedCategory = category
+            self?.tableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+            self?.updateCreateButtonState()
+        }
+
+        controller.modalPresentationStyle = .pageSheet
+        present(controller, animated: true)
+    }}
 
 // MARK: - UITableViewDataSource
 
@@ -426,11 +445,16 @@ extension AddTrackerConfigurationViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch indexPath.row {
         case 0:
-            return tableView
-                .dequeueReusableCell(
-                    withIdentifier: "CategoryCell",
-                    for: indexPath
-                ) as! CategoryTableViewCell
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: "CategoryCell",
+                for: indexPath
+            ) as! CategoryTableViewCell
+
+            cell.configure(
+                with: selectedCategory ?? "Категория"
+            )
+
+            return cell
 
         case 1:
             let cell = tableView
@@ -469,7 +493,7 @@ extension AddTrackerConfigurationViewController: UITableViewDelegate {
             scheduleRowTapped()
 
         case 0:
-            break
+            categoryRowTapped()
 
         default:
             break

@@ -55,4 +55,8 @@ final class CategoryTableViewCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    func configure(with categoryName: String?) {
+        subtitleLabel.text = categoryName
+    }
 }

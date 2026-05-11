@@ -48,7 +48,7 @@ final class SecondOnboardingScreenViewController: UIViewController {
             
             label.bottomAnchor.constraint(equalTo: backgroundImage.bottomAnchor, constant: -304),
             label.leadingAnchor.constraint(equalTo: backgroundImage.leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(equalTo: backgroundImage.trailingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: backgroundImage.trailingAnchor, constant: -16),
             label.topAnchor.constraint(equalTo: backgroundImage.topAnchor, constant: 432)
         ])
     }
