@@ -72,7 +72,6 @@ final class CategoryScreenTableViewCell: UITableViewCell {
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
-            containerView.heightAnchor.constraint(equalToConstant: 75),
 
             // Title
 

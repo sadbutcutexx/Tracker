@@ -49,9 +49,8 @@ final class CategoryViewController: UIViewController {
         let table = UITableView(frame: .zero, style: .plain)
 
         table.translatesAutoresizingMaskIntoConstraints = false
-        table.backgroundColor = .white
         table.separatorStyle = .none
-        table.rowHeight = 75
+        table.rowHeight = 90
         table.showsVerticalScrollIndicator = false
 
         table.contentInset = UIEdgeInsets(

@@ -37,16 +37,16 @@ final class CategoryTableViewCell: UITableViewCell {
         contentView.addSubview(rightArrowImageView)
         
         NSLayoutConstraint.activate([
-            // 1. titleLabel (верхний левый угол)
+            // 1. titleLabel
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
             
-            // 2. subtitleLabel (рядом с titleLabel, с выравниванием по правому краю)
+            // 2. subtitleLabel
             subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
-            // 3. rightArrowImageView (стрела справа, центр по вертикали)
+            // 3. rightArrowImageView
             rightArrowImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             rightArrowImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])

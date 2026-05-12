@@ -130,6 +130,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
     private let trackerNameField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите название трекера"
+        textField.clearButtonMode = .whileEditing
         textField.backgroundColor = .systemGray6
         textField.layer.cornerRadius = 16
         textField.translatesAutoresizingMaskIntoConstraints = false
