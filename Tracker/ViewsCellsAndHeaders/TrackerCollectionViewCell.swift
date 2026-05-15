@@ -42,7 +42,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         super.prepareForReuse()
         emojiLabel.text = nil
         titleLabel.text = nil
-        daysLabel.text = "0 дней"
+        daysLabel.text = nil
     }
 
     // MARK: - Configure
@@ -55,7 +55,10 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     ) {
         emojiLabel.text = emoji
         titleLabel.text = title
-        daysLabel.text = formatDays(days)
+        daysLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Number of days"),
+            days
+        )
 
         topView.backgroundColor = color
         addButton.backgroundColor = color
