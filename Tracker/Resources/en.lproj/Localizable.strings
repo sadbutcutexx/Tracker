@@ -1,0 +1,46 @@
+/* 
+  Localizable.strings
+  Tracker
+*/
+
+"trackers" = "Trackers";
+"search" = "Search";
+"what_shall_we_track" = "What shall we track?";
+"statistics" = "Statistics";
+"new_habit" = "New Habit";
+"category" = "Category";
+"schedule" = "Schedule";
+"not_selected" = "Not selected";
+"emoji" = "Emoji";
+"color" = "Color";
+"enter_tracker_name" = "Enter tracker name";
+"tracker_name_limit" = "38-character limit";
+"add_category" = "Add category";
+"enter_category_name" = "Enter category name";
+"done" = "Done";
+"new_category" = "New Category";
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+"cancel" = "Cancel";
+"create" = "Create";
+"add_category_stub_first_part" = "Habits and events can be";
+"add_category_stub_second_part" = "grouped by meaning.";
+"monday_short" = "Mon";
+"tuesday_short" = "Tue";
+"wednesday_short" = "Wed";
+"thursday_short" = "Thu";
+"friday_short" = "Fri";
+"saturday_short" = "Sat";
+"sunday_short" = "Sun";
+"daily" = "Daily";
+"onboarding_skip_button" = "Now that's technology!";
+"first_onboarding_text" = "Track only what you want.";
+"second_onboarding_text" = "Even if it’s not liters of water and yoga";
+"save_error" = "Save error!";
+"tracker_save_error" = "Tracker save error!";
+"without_category" = "Without category";

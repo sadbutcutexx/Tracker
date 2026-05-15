@@ -22,11 +22,11 @@ final class ScheduleTableViewCell: UITableViewCell {
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         rightArrowImageView.translatesAutoresizingMaskIntoConstraints = false
 
-        titleLabel.text = "Расписание"
+        titleLabel.text = NSLocalizedString("schedule", comment: "Schedule")
         titleLabel.font = .systemFont(ofSize: 17, weight: .regular)
         titleLabel.textColor = .label
 
-        subtitleLabel.text = "Не выбрано"
+        subtitleLabel.text = NSLocalizedString("not_selected", comment: "Not selected")
         subtitleLabel.font = .systemFont(ofSize: 14, weight: .regular)
         subtitleLabel.textColor = .systemGray
         subtitleLabel.textAlignment = .right
@@ -61,11 +61,11 @@ final class ScheduleTableViewCell: UITableViewCell {
 
         subtitleLabel.text = {
             if isEveryDay {
-                return "Ежедневно"
+                return NSLocalizedString("daily", comment: "Daily")
             } else if hasDays {
                 return selectedDays.map { $0.shortName }.joined(separator: ", ")
             } else {
-                return "Не выбрано"
+                return NSLocalizedString("not_selected", comment: "Not selected")
             }
         }()
 

@@ -25,25 +25,25 @@ final class SheduleDaysPicker: UIViewController {
 
         var fullName: String {
             switch self {
-            case .monday: return "Понедельник"
-            case .tuesday: return "Вторник"
-            case .wednesday: return "Среда"
-            case .thursday: return "Четверг"
-            case .friday: return "Пятница"
-            case .saturday: return "Суббота"
-            case .sunday: return "Воскресенье"
+            case .monday: return NSLocalizedString("monday", comment: "Monday")
+            case .tuesday: return NSLocalizedString("tuesday", comment: "Tuesday")
+            case .wednesday: return NSLocalizedString("wednesday", comment: "Wednesday")
+            case .thursday: return NSLocalizedString("thursday", comment: "Thursday")
+            case .friday: return NSLocalizedString("friday", comment: "Friday")
+            case .saturday: return NSLocalizedString("saturday", comment: "Saturday")
+            case .sunday: return NSLocalizedString("sunday", comment: "Sunday")
             }
         }
 
         var shortName: String {
             switch self {
-            case .monday: return "Пн"
-            case .tuesday: return "Вт"
-            case .wednesday: return "Ср"
-            case .thursday: return "Чт"
-            case .friday: return "Пт"
-            case .saturday: return "Сб"
-            case .sunday: return "Вс"
+            case .monday: return NSLocalizedString("monday_short", comment: "Mon")
+            case .tuesday: return NSLocalizedString("tuesday_short", comment: "Tue")
+            case .wednesday: return NSLocalizedString("wednesday_short", comment: "Wed")
+            case .thursday: return NSLocalizedString("thursday_short", comment: "Thu")
+            case .friday: return NSLocalizedString("friday_short", comment: "Fri")
+            case .saturday: return NSLocalizedString("saturday_short", comment: "Sat")
+            case .sunday: return NSLocalizedString("sunday_short", comment: "Sun")
             }
         }
     }
@@ -54,7 +54,7 @@ final class SheduleDaysPicker: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = NSLocalizedString("schedule", comment: "Schedule")
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +64,7 @@ final class SheduleDaysPicker: UIViewController {
     
     private let readyButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Готово"
+        config.title = NSLocalizedString("done", comment: "Done")
         config.baseBackgroundColor = .black
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
         

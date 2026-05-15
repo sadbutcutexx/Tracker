@@ -1,0 +1,46 @@
+/* 
+  Localizable.strings
+  Tracker
+*/
+
+"trackers" = "Трекеры";
+"search" = "Поиск";
+"what_shall_we_track" = "Что будем отслеживать?";
+"statistics" = "Статистика";
+"new_habit" = "Новая привычка";
+"category" = "Категория";
+"schedule" = "Расписание";
+"not_selected" = "Не выбрано";
+"emoji" = "Эмодзи";
+"color" = "Цвет";
+"enter_tracker_name" = "Введите название трекера";
+"tracker_name_limit" = "Ограничение 38 символов";
+"add_category" = "Добавить категорию";
+"enter_category_name" = "Введите название категории";
+"done" = "Готово";
+"new_category" = "Новая категория";
+"monday" = "Понедельник";
+"tuesday" = "Вторник";
+"wednesday" = "Среда";
+"thursday" = "Четверг";
+"friday" = "Пятница";
+"saturday" = "Суббота";
+"sunday" = "Воскресенье";
+"cancel" = "Отменить";
+"create" = "Создать";
+"add_category_stub_first_part" = "Привычки и события можно";
+"add_category_stub_second_part" = "объединить по смыслу";
+"monday_short" = "Пн";
+"tuesday_short" = "Вт";
+"wednesday_short" = "Ср";
+"thursday_short" = "Чт";
+"friday_short" = "Пт";
+"saturday_short" = "Сб";
+"sunday_short" = "Вс";
+"daily" = "Ежедневно";
+"onboarding_skip_button" = "Вот это технологии!";
+"first_onboarding_text" = "Отслеживайте тольrо то, что хотите";
+"second_onboarding_text" = "Даже если это не литры воды и йога";
+"save_error" = "Ошибка сохранения";
+"tracker_save_error" = "Ошибка сохранения трекера";
+"without_category" = "Без категории";

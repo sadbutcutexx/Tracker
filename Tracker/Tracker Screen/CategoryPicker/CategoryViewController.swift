@@ -28,8 +28,11 @@ final class CategoryViewController: UIViewController {
     
     private let stubLabel: UILabel = {
         let label = UILabel()
-
-        label.text = "Привычки и события можно\nобъединить по смыслу"
+        
+        let labelTextFirst = NSLocalizedString("add_category_stub_first_part", comment: "Habits and events can be")
+        let labelTextSecond = NSLocalizedString("add_category_stub_second_part", comment: "grouped by meaning.")
+        
+        label.text = "\(labelTextFirst)\n\(labelTextSecond)"
         label.numberOfLines = 0
         label.textAlignment = .center
 
@@ -75,7 +78,7 @@ final class CategoryViewController: UIViewController {
         let button = UIButton(type: .system)
 
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(NSLocalizedString("add_category", comment: "Add category"), for: .normal)
         button.backgroundColor = .black
         button.tintColor = .white
         button.layer.cornerRadius = 16
@@ -91,7 +94,7 @@ final class CategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = NSLocalizedString("category", comment: "Category")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         
         label.translatesAutoresizingMaskIntoConstraints = false

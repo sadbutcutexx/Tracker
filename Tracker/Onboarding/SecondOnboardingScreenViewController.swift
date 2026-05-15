@@ -20,7 +20,7 @@ final class SecondOnboardingScreenViewController: UIViewController {
     private let label: UILabel = {
         let label = UILabel()
         
-        label.text = "Даже если это не литры воды и йога"
+        label.text = NSLocalizedString("second_onboarding_text", comment: "Even if it’s not liters of water and yoga")
         label.numberOfLines = 2
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)

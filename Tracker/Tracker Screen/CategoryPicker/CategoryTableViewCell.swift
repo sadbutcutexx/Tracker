@@ -22,7 +22,7 @@ final class CategoryTableViewCell: UITableViewCell {
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         rightArrowImageView.translatesAutoresizingMaskIntoConstraints = false
         
-        titleLabel.text = "Категория"
+        titleLabel.text = NSLocalizedString("category", comment: "Category")
         titleLabel.font = .systemFont(ofSize: 17)
         titleLabel.textColor = .label
         

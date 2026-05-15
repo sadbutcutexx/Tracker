@@ -19,7 +19,7 @@ final class FirstOnboardingScreenViewController: UIViewController {
     
     private let label: UILabel = {
         let label = UILabel()
-        label.text = "Отслеживайте только то, что хотите"
+        label.text = NSLocalizedString("first_onboarding_text", comment: "Track only what you want.")
         label.numberOfLines = 2
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)

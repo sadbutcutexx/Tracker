@@ -148,14 +148,14 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
-        picker.locale = Locale(identifier: "ru_RU")
+        picker.locale = Locale.current
         picker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         return picker
     }
     
     private func createTrackerLabel() -> UILabel {
         let label = UILabel()
-        label.text = "Трекеры"
+        label.text = NSLocalizedString("trackers", comment: "Trackers")
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.textColor = UIColor(named: "Black [iOS]")
         return label
@@ -164,7 +164,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     private func createSearchBar() -> UISearchBar {
         let searchBar = UISearchBar()
         searchBar.searchBarStyle = .minimal
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = NSLocalizedString("search", comment: "Search")
         searchBar.delegate = self
         searchBar.backgroundImage = UIImage()
         searchBar.autocorrectionType = .no
@@ -178,7 +178,7 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
     
     private func createStubLabel() -> UILabel {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = NSLocalizedString("what_shall_we_track", comment: "What shall we track")
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = UIColor(named: "Black [iOS]")
         return label
@@ -257,7 +257,8 @@ final class TrackerScreenViewController: UIViewController, TrackerScreenProtocol
         do {
             try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: categoryTitle)
         } catch {
-            print("Ошибка сохранения: \(error)")
+            let errorLocalized = NSLocalizedString("save_error", comment: "Save error!")
+            print("\(errorLocalized)\(error.localizedDescription)")
         }
     }
 
