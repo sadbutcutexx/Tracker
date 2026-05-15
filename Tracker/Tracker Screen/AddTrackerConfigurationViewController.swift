@@ -66,7 +66,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
     
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Emoji"
+        label.text = NSLocalizedString("emoji", comment: "Emoji")
         label.font = .systemFont(ofSize: 22, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -74,7 +74,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
     
     private let colorTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Цвет"
+        label.text = NSLocalizedString("color", comment: "Color")
         label.font = .systemFont(ofSize: 22, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -120,7 +120,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая привычка"
+        label.text = NSLocalizedString("new_habit", comment: "New habit")
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -129,7 +129,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private let trackerNameField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = NSLocalizedString("enter_tracker_name", comment: "Enter tracker name")
         textField.clearButtonMode = .whileEditing
         textField.backgroundColor = .systemGray6
         textField.layer.cornerRadius = 16
@@ -141,7 +141,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private let dismissButton: UIButton = {
         var config = UIButton.Configuration.plain()
-        config.title = "Отменить"
+        config.title = NSLocalizedString("cancel", comment: "Cancel")
         config.baseForegroundColor = .systemRed
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
 
@@ -160,7 +160,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
 
     private let createTrackerButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Создать"
+        config.title = NSLocalizedString("create", comment: "Create")
         config.baseForegroundColor = .white
         config.baseBackgroundColor = UIColor(white: 0.72, alpha: 1)
         config.contentInsets = NSDirectionalEdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16)
@@ -382,13 +382,14 @@ final class AddTrackerConfigurationViewController: UIViewController {
         )
         
         do {
-            try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: selectedCategory ?? "Без категории")
+            try TrackerStore.shared.saveTracker(trackerModel: tracker, categoryTitle: selectedCategory ?? NSLocalizedString("without_category", comment: "Without category"))
             
-            delegate?.newTrackerAdded(tracker, categoryTitle: selectedCategory ?? "Без категории")
+            delegate?.newTrackerAdded(tracker, categoryTitle: selectedCategory ?? NSLocalizedString("without_category", comment: "Without category"))
 
             dismiss(animated: true)
         } catch {
-            print("Ошибка сохранения трекера: \(error)")
+            let errorLocalize = NSLocalizedString("tracker_save_error", comment: "Tracker save error!")
+            print("\(errorLocalize) \(error.localizedDescription)")
         }
     }
 
@@ -402,7 +403,7 @@ final class AddTrackerConfigurationViewController: UIViewController {
         }
 
         isLimitReached = newState
-        limitLabel.text = "Ограничение 38 символов"
+        limitLabel.text = NSLocalizedString("tracker_name_limit", comment: "Tracker name limit 38")
         limitLabel.isHidden = !newState
 
         updateCreateButtonState()
@@ -452,7 +453,7 @@ extension AddTrackerConfigurationViewController: UITableViewDataSource {
             ) as! CategoryTableViewCell
 
             cell.configure(
-                with: selectedCategory ?? "Категория"
+                with: selectedCategory ?? NSLocalizedString("category", comment: "Category")
             )
 
             return cell

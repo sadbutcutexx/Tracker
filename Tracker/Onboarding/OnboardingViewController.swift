@@ -11,7 +11,7 @@ final class OnboardingViewController: UIViewController {
     
     private let skipButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Вот это технологии!"
+        config.title = NSLocalizedString("onboarding_skip_button", comment: "Now that's technology!")
         config.baseBackgroundColor = .black
         config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
 

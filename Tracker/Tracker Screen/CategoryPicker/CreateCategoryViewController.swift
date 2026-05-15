@@ -19,7 +19,7 @@ final class CreateCategoryViewController: UIViewController {
         let tf = UITextField()
 
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder = "Введите название категории"
+        tf.placeholder = NSLocalizedString("enter_category_name", comment: "Enter category name")
         tf.backgroundColor = .systemGray6
         tf.layer.cornerRadius = 16
         tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
@@ -32,7 +32,7 @@ final class CreateCategoryViewController: UIViewController {
         let button = UIButton(type: .system)
 
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("done", comment: "Done"), for: .normal)
         button.backgroundColor = .systemGray3
         button.tintColor = .white
         button.layer.cornerRadius = 16
@@ -48,7 +48,7 @@ final class CreateCategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = NSLocalizedString("new_category", comment: "New category")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -79,8 +79,6 @@ final class CreateCategoryViewController: UIViewController {
         )
 
         view.backgroundColor = .white
-
-        navigationItem.title = "Новая категория"
 
         view.addSubview(textField)
         view.addSubview(readyButton)
